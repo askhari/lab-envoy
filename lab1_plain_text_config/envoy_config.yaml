@@ -1,0 +1,53 @@
+---
+
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address:
+      protocol: TCP
+      # Published in all ports just for testing purposes.
+      # You may connect to the admin console to see current configurations.
+      address: 0.0.0.0
+      port_value: 9901
+static_resources:
+  listeners:
+  - name: listener_0
+    address:
+      socket_address:
+        protocol: TCP
+        address: 0.0.0.0
+        port_value: 10000
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.tcp_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.config.filter.network.tcp_proxy.v2.TcpProxy
+          stat_prefix: ingress_tcp
+          cluster: service_nginx
+  clusters:
+  - name: service_nginx
+    connect_timeout: 0.25s
+    type: STATIC
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: service_nginx
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: 172.28.128.3
+                port_value: 80
+          load_balancing_weight: 10
+        - endpoint:
+            address:
+              socket_address:
+                address: 172.28.128.4
+                port_value: 80
+          load_balancing_weight: 20
+        - endpoint:
+            address:
+              socket_address:
+                address: 172.28.128.5
+                port_value: 80
+          load_balancing_weight: 70
