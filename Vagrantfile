@@ -18,9 +18,21 @@ sudo systemctl enable nginx
 sudo systemctl start nginx
 SCRIPT
 
+# Install envoy and its dependencies.
+$installConsul = <<SCRIPT
+sudo mkdir /opt/consul
+sudo chown vagrant:vagrant /opt/consul
+cd /opt/consul
+mkdir bin lib logs config
+cd bin
+curl -O https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip
+unzip consul_1.7.2_linux_amd64.zip
+rm consul_1.7.2_linux_amd64.zip
+SCRIPT
+
 # Install your preferred tools to debug and administer this systems.
 $installExtraTools = <<SCRIPT
-sudo yum install -y vim net-tools
+sudo yum install -y vim net-tools strace
 SCRIPT
 
 Vagrant.configure("2") do |config|
