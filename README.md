@@ -68,7 +68,13 @@ It will prepare three virtual machines with the following software installed:
 * _[Nginx](https://www.nginx.com/)_: up and running in port 80 of each node.
 * _Extra tools:_ like _strace, netstat, net-tools or vim_, please edit the _Vagrantfile_ and include or change them for any tools you are comfortable with.
 
-Once the lab is up and running you may _SSH_ to the nodes:
+Once _[Vagrant](https://www.vagrantup.com/)_ finishes you should have a set up with the following nodes:
+
+* node-3: with ip 172.28.128.3
+* node-4: with ip 172.28.128.4
+* node-5: with ip 172.28.128.5
+
+Now you may _SSH_ to the nodes:
 
 ```bash
 ζ vagrant status

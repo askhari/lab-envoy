@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.4] - 2020-04-10
 ### Changed
 - README.md for lab introductions.
+- README.md for Lab 1.
 
 ### Added
 - Consul installation.
