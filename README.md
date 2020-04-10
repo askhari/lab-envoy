@@ -5,6 +5,10 @@ Hi there
 In this repository you'll find some labs that may help understand a little bit the basics on how to use _[Envoy](https://www.envoyproxy.io/)_ with different control planes like _[Consul](https://www.consul.io/)_.
 Now, let's get started.
 
+# Feedback is welcome
+
+I really appreciate constructive feedback. So you are more than welcome if you want to add some info or comment on this repository.
+
 # Goal
 
 The main goal of these labs is to have a better understanding of _[Envoy](https://www.envoyproxy.io/)_ and how to integrate it with some of the current _Service discovery_ softwares in order to migrate from Virtual Machine ecosystem to a Container ecosystem.
