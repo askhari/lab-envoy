@@ -40,6 +40,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $installEnvoy
   config.vm.provision "shell", inline: $installNginx
   config.vm.provision "shell", inline: $installExtraTools
+  config.vm.provision "file", source: ".", destination: "/home/vagrant/configuration_for_labs"
 
   # Generate 3 machines.
   (3..5).each do |i|
