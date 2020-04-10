@@ -31,8 +31,13 @@ rm consul_1.7.2_linux_amd64.zip
 SCRIPT
 
 # Install your preferred tools to debug and administer this systems.
+$installSupportTools = <<SCRIPT
+sudo yum install -y unzip net-tools strace
+SCRIPT
+
+# Install your preferred tools to debug and administer this systems.
 $installExtraTools = <<SCRIPT
-sudo yum install -y vim net-tools strace
+sudo yum install -y vim
 SCRIPT
 
 Vagrant.configure("2") do |config|
