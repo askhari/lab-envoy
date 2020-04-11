@@ -45,9 +45,23 @@ Go to the  *[/home/vagrant/configuration_for_labs/lab2_integrating_consul_and_en
 * *start_join*: update it with all nodes IP addresses. You only need to update these values if you changed the number of nodes in the _Vagrantfile_.
 * *retry_join*: update it with all nodes IP addresses. You only need to update these values if you changed the number of nodes in the _Vagrantfile_.
 
-Using the default values you should have a configuration like this for each node.
+## Services configured in this lab
+
+You will configure two services using _[Consul](https://www.consul.io/)_ configuration files:
+
+* _nginx_ service: to register the _[Nginx](https://www.nginx.com/)_ web server.
+* _client_ service: to register a fake service used to connect to the _nginx_ service.
+
+And also, these configurations will register their proxies automatically as:
+
+* _nginx-sidecar-proxy_: this service represents the _[Nginx](https://www.nginx.com/)_ sidecar proxy configured in _[Envoy](https://www.envoyproxy.io/)_.
+* _client-sidecar-proxy_: this services represents the _client_ sidecar proxy configured in _[Envoy](https://www.envoyproxy.io/)_
+
+These proxy services are generated automatically by _[Consul](https://www.consul.io/)_ when you configure [Consul Connect](https://www.consul.io/docs/connect/index.html).
 
 ## main.hcl configuration for **node-3**
+
+Using the default values from this repository you should have a configuration like this for each node.
 
 ```bash
 [vagrant@localhost ~]$ cat /opt/consul/config/main.hcl 
@@ -564,7 +578,7 @@ Execute the command below to genetare _[Envoy](https://www.envoyproxy.io/)_ conf
 }
 ```
 
-## Run Envoy instance
+## Run Envoy instance for Nginx service
 
 To configure _[Envoy](https://www.envoyproxy.io/)_ in this lab you should use the configuration files created in the previous step.
 
@@ -626,17 +640,113 @@ To configure _[Envoy](https://www.envoyproxy.io/)_ in this lab you should use th
 ```
 
 At this point you will see in the _[Consul](https://www.consul.io/)_ UI that one of the _nginx-sidecar-proxy_ services is now in green.
-
 ![nginx-sidecar-proxy](./screenshots/nginx_sidecar_proxy.jpg)
 
-* _[Envoy](https://www.envoyproxy.io/)_ configuration used for this examples. You will also learn how to generate this configuration yourself in this lab.
+## Run Envoy instance for Client service
 
-## Services registered
+To configure _[Envoy](https://www.envoyproxy.io/)_ in this lab you should use the configuration files created in the previous step.
 
-There are two services to register in the configuration files:
+This would be the second instance of _[Envoy](https://www.envoyproxy.io/)_ running in the same server. In order to run multiple _[Envoy](https://www.envoyproxy.io/)_ instances in the same server you'll need to use the *--base-id* parameter like below:
 
-1. _nginx:_ which is the service that will serve HTTP requests.
-2. _client:_ which is used to proxy all the HTTP request to the _nginx_ servers.
+```bash
+[vagrant@localhost ~]$ envoy -c /tmp/envoy_client_config.json --base-id 1
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:253] initializing epoch 0 (hot restart version=11.104)
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:255] statically linked extensions:
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.dubbo_proxy.route_matchers: default
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.thrift_proxy.transports: auto, framed, header, unframed
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.transport_sockets.upstream: envoy.transport_sockets.alts, envoy.transport_sockets.raw_buffer, envoy.transport_sockets.tap, envoy.transport_sockets.tls, raw_buffer, tls
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.resource_monitors: envoy.resource_monitors.fixed_heap, envoy.resource_monitors.injected_resource
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.transport_sockets.downstream: envoy.transport_sockets.alts, envoy.transport_sockets.raw_buffer, envoy.transport_sockets.tap, envoy.transport_sockets.tls, raw_buffer, tls
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.filters.network: envoy.client_ssl_auth, envoy.echo, envoy.ext_authz, envoy.filters.network.client_ssl_auth, envoy.filters.network.direct_response, envoy.filters.network.dubbo_proxy, envoy.filters.network.echo, envoy.filters.network.ext_authz, envoy.filters.network.http_connection_manager, envoy.filters.network.kafka_broker, envoy.filters.network.local_ratelimit, envoy.filters.network.mongo_proxy, envoy.filters.network.mysql_proxy, envoy.filters.network.ratelimit, envoy.filters.network.rbac, envoy.filters.network.redis_proxy, envoy.filters.network.sni_cluster, envoy.filters.network.tcp_proxy, envoy.filters.network.thrift_proxy, envoy.filters.network.zookeeper_proxy, envoy.http_connection_manager, envoy.mongo_proxy, envoy.ratelimit, envoy.redis_proxy, envoy.tcp_proxy
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.thrift_proxy.protocols: auto, binary, binary/non-strict, compact, twitter
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.dubbo_proxy.serializers: dubbo.hessian2
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.access_loggers: envoy.access_loggers.file, envoy.access_loggers.http_grpc, envoy.access_loggers.tcp_grpc, envoy.file_access_log, envoy.http_grpc_access_log, envoy.tcp_grpc_access_log
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.filters.udp_listener: envoy.filters.udp.dns_filter, envoy.filters.udp_listener.udp_proxy
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.health_checkers: envoy.health_checkers.redis
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.dubbo_proxy.filters: envoy.filters.dubbo.router
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.thrift_proxy.filters: envoy.filters.thrift.rate_limit, envoy.filters.thrift.router
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.tracers: envoy.dynamic.ot, envoy.lightstep, envoy.tracers.datadog, envoy.tracers.dynamic_ot, envoy.tracers.lightstep, envoy.tracers.opencensus, envoy.tracers.xray, envoy.tracers.zipkin, envoy.zipkin
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.retry_priorities: envoy.retry_priorities.previous_priorities
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.clusters: envoy.cluster.eds, envoy.cluster.logical_dns, envoy.cluster.original_dst, envoy.cluster.static, envoy.cluster.strict_dns, envoy.clusters.aggregate, envoy.clusters.dynamic_forward_proxy, envoy.clusters.redis
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   http_cache_factory: envoy.extensions.http.cache.simple
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.udp_listeners: raw_udp_listener
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.dubbo_proxy.protocols: dubbo
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.resolvers: envoy.ip
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.filters.listener: envoy.filters.listener.http_inspector, envoy.filters.listener.original_dst, envoy.filters.listener.original_src, envoy.filters.listener.proxy_protocol, envoy.filters.listener.tls_inspector, envoy.listener.http_inspector, envoy.listener.original_dst, envoy.listener.original_src, envoy.listener.proxy_protocol, envoy.listener.tls_inspector
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.retry_host_predicates: envoy.retry_host_predicates.omit_canary_hosts, envoy.retry_host_predicates.omit_host_metadata, envoy.retry_host_predicates.previous_hosts
+[2020-04-11 11:27:31.145][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.filters.http: envoy.buffer, envoy.cors, envoy.csrf, envoy.ext_authz, envoy.fault, envoy.filters.http.adaptive_concurrency, envoy.filters.http.aws_lambda, envoy.filters.http.aws_request_signing, envoy.filters.http.buffer, envoy.filters.http.cache, envoy.filters.http.cors, envoy.filters.http.csrf, envoy.filters.http.dynamic_forward_proxy, envoy.filters.http.dynamo, envoy.filters.http.ext_authz, envoy.filters.http.fault, envoy.filters.http.grpc_http1_bridge, envoy.filters.http.grpc_http1_reverse_bridge, envoy.filters.http.grpc_json_transcoder, envoy.filters.http.grpc_stats, envoy.filters.http.grpc_web, envoy.filters.http.gzip, envoy.filters.http.header_to_metadata, envoy.filters.http.health_check, envoy.filters.http.ip_tagging, envoy.filters.http.jwt_authn, envoy.filters.http.lua, envoy.filters.http.on_demand, envoy.filters.http.original_src, envoy.filters.http.ratelimit, envoy.filters.http.rbac, envoy.filters.http.router, envoy.filters.http.squash, envoy.filters.http.tap, envoy.grpc_http1_bridge, envoy.grpc_json_transcoder, envoy.grpc_web, envoy.gzip, envoy.health_check, envoy.http_dynamo_filter, envoy.ip_tagging, envoy.lua, envoy.rate_limit, envoy.router, envoy.squash
+[2020-04-11 11:27:31.146][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.grpc_credentials: envoy.grpc_credentials.aws_iam, envoy.grpc_credentials.default, envoy.grpc_credentials.file_based_metadata
+[2020-04-11 11:27:31.146][4966][info][main] [external/envoy/source/server/server.cc:257]   envoy.stats_sinks: envoy.dog_statsd, envoy.metrics_service, envoy.stat_sinks.dog_statsd, envoy.stat_sinks.hystrix, envoy.stat_sinks.metrics_service, envoy.stat_sinks.statsd, envoy.statsd
+[2020-04-11 11:27:31.150][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.Cluster.hosts' from file cluster.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.151][4966][info][main] [external/envoy/source/server/server.cc:338] admin address: 127.0.0.1:29000
+[2020-04-11 11:27:31.152][4966][info][main] [external/envoy/source/server/server.cc:457] runtime: layers:
+  - name: static_layer
+    static_layer:
+      envoy.deprecated_features:envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager.Tracing.operation_name: true
+      envoy.deprecated_features:envoy.api.v2.Cluster.tls_context: true
+      envoy.deprecated_features:envoy.config.trace.v2.ZipkinConfig.HTTP_JSON_V1: true
+[2020-04-11 11:27:31.152][4966][info][config] [external/envoy/source/server/configuration_impl.cc:103] loading tracing configuration
+[2020-04-11 11:27:31.152][4966][info][config] [external/envoy/source/server/configuration_impl.cc:69] loading 0 static secret(s)
+[2020-04-11 11:27:31.152][4966][info][config] [external/envoy/source/server/configuration_impl.cc:75] loading 1 cluster(s)
+[2020-04-11 11:27:31.165][4966][info][upstream] [external/envoy/source/common/upstream/cluster_manager_impl.cc:167] cm init: initializing cds
+[2020-04-11 11:27:31.168][4966][info][config] [external/envoy/source/server/configuration_impl.cc:79] loading 0 listener(s)
+[2020-04-11 11:27:31.168][4966][info][config] [external/envoy/source/server/configuration_impl.cc:129] loading stats sink configuration
+[2020-04-11 11:27:31.168][4966][info][main] [external/envoy/source/server/server.cc:552] starting main dispatch loop
+[2020-04-11 11:27:31.171][4966][info][upstream] [external/envoy/source/common/upstream/cds_api_impl.cc:75] cds: add 2 cluster(s), remove 1 cluster(s)
+[2020-04-11 11:27:31.183][4966][info][upstream] [external/envoy/source/common/upstream/cds_api_impl.cc:91] cds: add/update cluster 'local_app'
+[2020-04-11 11:27:31.183][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using runtime overrides to continue using now fatal-by-default deprecated option 'envoy.api.v2.Cluster.tls_context' from file cluster.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.202][4966][info][upstream] [external/envoy/source/common/upstream/cds_api_impl.cc:91] cds: add/update cluster 'nginx.default.envoy-lab.internal.69e30f65-c910-9c19-b17b-70de19d42da7.consul'
+[2020-04-11 11:27:31.202][4966][info][upstream] [external/envoy/source/common/upstream/cluster_manager_impl.cc:145] cm init: initializing secondary clusters
+[2020-04-11 11:27:31.203][4966][info][upstream] [external/envoy/source/common/upstream/cluster_manager_impl.cc:171] cm init: all clusters initialized
+[2020-04-11 11:27:31.203][4966][info][main] [external/envoy/source/server/server.cc:531] all clusters initialized. initializing init manager
+[2020-04-11 11:27:31.205][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.listener.FilterChain.tls_context' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.205][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.listener.Filter.config' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.205][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.listener.Filter.config' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.206][4966][warning][misc] [bazel-out/k8-opt/bin/external/envoy/source/extensions/common/_virtual_includes/utility_lib/extensions/common/utility.h:65] Using deprecated extension name 'envoy.ext_authz' for 'envoy.filters.network.ext_authz'. This name will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.206][4966][warning][misc] [bazel-out/k8-opt/bin/external/envoy/source/extensions/common/_virtual_includes/utility_lib/extensions/common/utility.h:65] Using deprecated extension name 'envoy.tcp_proxy' for 'envoy.filters.network.tcp_proxy'. This name will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.207][4966][info][upstream] [external/envoy/source/server/lds_api.cc:74] lds: add/update listener 'public_listener:0.0.0.0:21000'
+[2020-04-11 11:27:31.207][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.listener.Filter.config' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.207][4966][warning][misc] [bazel-out/k8-opt/bin/external/envoy/source/extensions/common/_virtual_includes/utility_lib/extensions/common/utility.h:65] Using deprecated extension name 'envoy.tcp_proxy' for 'envoy.filters.network.tcp_proxy'. This name will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
+[2020-04-11 11:27:31.208][4966][info][upstream] [external/envoy/source/server/lds_api.cc:74] lds: add/update listener 'nginx:127.0.0.1:9191'
+[2020-04-11 11:27:31.208][4966][info][config] [external/envoy/source/server/listener_manager_impl.cc:700] all dependencies initialized. starting workers
+```
+
+At this point you will see in the _[Consul](https://www.consul.io/)_ UI that one of the _client-sidecar-proxy_ services is now in green.
+![client-sidecar-proxy](./screenshots/client_sidecar_proxy.jpg)
+
+## Preparing Nginx proxies in node-4 and node-5
+
+Following the previous steps, now you may configure the _[Envoy](https://www.envoyproxy.io/)_ instances located in nodes 4 and 5.
+Once you do that you will have all the _nginx-sidecar-services_ in green.
+
+# Testing the deployment Services registered
+
+## Ports used in this lab
+
+First lets take a look to the ports used in this lab on. Node-3 is the one for this example:
+
+* _8500:_ used to reach the _[Consul](https://www.consul.io/)_ UI and _[Consul](https://www.consul.io/)_ API.
+* _80:_ Used by _[Nginx](https://www.nginx.com/)_ service.
+* _8080:_ Used by _Client_ service. In fact we are not using this port at all.
+* _21000:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _client_ service.
+* _9191:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as an upstream from _client_ service to _nginx_ service.
+* _21001:_ Used by _nginx-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _nginx_ service.
+
+## Sending requests
+
+The last step of this lab about testing that we really configured the proxies properly.
+
+You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _9191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
+
+```bash
+Last login: Sat Apr 11 11:25:27 2020 from 10.0.2.2
+[vagrant@localhost ~]$ curl localhost:9191
+Hello from node 3
+[vagrant@localhost ~]$ curl localhost:9191
+Hello from node 3
+```
+
+It's important to use the proxy port listening on port _9191_ because _[Consul](https://www.consul.io/)_ configures _[Envoy](https://www.envoyproxy.io/)_ to use mTLS between services. This means that you won't be able to make this _curl_ call directly to the _[Envoy](https://www.envoyproxy.io/)_ proxy port _21001_ opened by the _nginx-sidecar-proxy_.
 
 # Caveats
 
