@@ -130,6 +130,52 @@ Now you may copy this configurations into the right folder which should be */opt
 main.hcl  services
 ```
 
+## Explanation of main.hcl
+
+Here you have an explanation line by line of the _main.hcl_ configuration file.
+
+```bash
+ 1	datacenter = "envoy-lab"
+ 2	server = true
+ 3	bind_addr = "172.28.128.3"
+ 4	ports {
+ 5	  grpc = 8502
+ 6	}
+ 7	addresses {
+ 8	  http = "172.28.128.3"
+ 9	}
+10	data_dir = "/opt/consul/lib"
+11	log_file = "/opt/consul/logsconsul.log"
+12	node_name = "node3"
+13	bootstrap_expect = 3
+14	start_join = ["172.28.128.3","172.28.128.4","172.28.128.5"]
+15	retry_join = ["172.28.128.3","172.28.128.4","172.28.128.5"]
+16	connect {
+17	  enabled = true
+18	}
+```
+
+Line by line explanation:
+
+ 1. datacenter = "envoy-lab" <---------------- name of the _[Consul](https://www.consul.io/)_ name.
+ 2. server = true <--------------------------- set the node as a server.
+ 3. bind_addr = "172.28.128.3" <-------------- IP address of the current node to bind the service.
+ 4. ports { <--------------------------------- directive to define specific port to Listen.
+ 5.   grpc = 8502 <--------------------------- This is compulsory if you want to integrate with Envoy. It's the port used by Envoy to open a communication channel between _[Envoy](https://www.envoyproxy.io/)_ and _[Consul](https://www.consul.io/)_.
+ 6. }
+ 7. addresses { <----------------------------- Addresses to bind specific services.
+ 8.   http = "172.28.128.3"
+ 9. }
+10. data_dir = "/opt/consul/lib" <------------ Folder to store runtime data.
+11. log_file = "/opt/consul/logsconsul.log" <- Log files folder.
+12. node_name = "node3" <--------------------- Node name to identify this server in the cluster.
+13. bootstrap_expect = 3 <-------------------- Minimal number of server needed to bootstrap the cluster.
+14. start_join = ["172.28.128.3","172.28.128.4","172.28.128.5"] <--- IPs of all the servers to join at boot time.
+15. retry_join = ["172.28.128.3","172.28.128.4","172.28.128.5"] <--- Ips of all the servers to retry the join in case of losing connection.
+16. connect { <------------------------------- Directive block to control [Consul Connect](https://www.consul.io/docs/connect/index.html) features.
+17.   enabled = true <------------------------ Enable [Consul Connect](https://www.consul.io/docs/connect/index.html.
+18. }
+
 # Running Consul
 
 Now that you have configured _[Consul](https://www.consul.io/)_ you may start the cluster.
@@ -267,6 +313,10 @@ Once you have _[Consul](https://www.consul.io/)_ up and running you may load the
 You may see two services injected by _[Consul](https://www.consul.io/)_ automatically to use them as proxies.
 
 # Configuring Envoy
+
+_[Envoy](https://www.envoyproxy.io/)_ is a quite complex tool. If you take a look to its documentation you'll see that there are tons of configurations and parameters.
+
+To configure _[Envoy](https://www.envoyproxy.io/)_ in this lab you should use the configuration file (*envoy_config.json*) created in the previous step.
 
 * _[Envoy](https://www.envoyproxy.io/)_ configuration used for this examples. You will also learn how to generate this configuration yourself in this lab.
 
