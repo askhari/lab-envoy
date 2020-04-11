@@ -171,24 +171,50 @@ Here you have an explanation line by line of the _main.hcl_ configuration file.
 
 Line by line explanation:
 
- 1. datacenter = "envoy-lab" <---------------- name of the _[Consul](https://www.consul.io/)_ name.
- 2. server = true <--------------------------- set the node as a server.
- 3. bind_addr = "172.28.128.3" <-------------- IP address of the current node to bind the service.
- 4. ports { <--------------------------------- directive to define specific port to Listen.
- 5.   grpc = 8502 <--------------------------- This is compulsory if you want to integrate with Envoy. It's the port used by Envoy to open a communication channel between _[Envoy](https://www.envoyproxy.io/)_ and _[Consul](https://www.consul.io/)_.
- 6. }
- 7. addresses { <----------------------------- Addresses to bind specific services.
- 8.   http = "172.28.128.3"
- 9. }
-10. data_dir = "/opt/consul/lib" <------------ Folder to store runtime data.
-11. log_file = "/opt/consul/logsconsul.log" <- Log files folder.
-12. node_name = "node3" <--------------------- Node name to identify this server in the cluster.
-13. bootstrap_expect = 3 <-------------------- Minimal number of server needed to bootstrap the cluster.
-14. start_join = ["172.28.128.3","172.28.128.4","172.28.128.5"] <--- IPs of all the servers to join at boot time.
-15. retry_join = ["172.28.128.3","172.28.128.4","172.28.128.5"] <--- Ips of all the servers to retry the join in case of losing connection.
-16. connect { <------------------------------- Directive block to control [Consul Connect](https://www.consul.io/docs/connect/index.html) features.
-17.   enabled = true <------------------------ Enable [Consul Connect](https://www.consul.io/docs/connect/index.html.
-18. }
+```bash
+# datacenter: Name of the _[Consul](https://www.consul.io/)_ datacenter.
+ 1	datacenter = "envoy-lab"
+
+ # server: Set node as a _server_ node.
+ 2	server = true
+
+ # bind_addr: IP address of the current node to bind Consul service.
+ 3	bind_addr = "172.28.128.3"
+
+ # ports: Object to specify which ports and services are running.
+ # _grpc_ is compulsory if you want to activate Envoy integration.
+ 4	ports {
+ 5	  grpc = 8502
+ 6	}
+
+ # Addresses: IP address where the _http_ Consul service is bind.
+ 7	addresses {
+ 8	  http = "172.28.128.3"
+ 9	}
+
+ # data_dir: Folder to store Consul runtime data.
+10	data_dir = "/opt/consul/lib"
+
+# log_file: Consul logs.
+11	log_file = "/opt/consul/logsconsul.log"
+
+# node_name: Consul node name. This is used to identify the node into the Consul cluster.
+12	node_name = "node3"
+
+# bootstrap_expect: used to set the minimum number of nodes needed to reach the first consensus in the cluster.
+13	bootstrap_expect = 3
+
+# start_join: list of node addresses to connect at start time. This is used to join the cluster when Consul boots.
+14	start_join = ["172.28.128.3","172.28.128.4","172.28.128.5"]
+
+# retry_join: list of node addresses to connect in case this node loses connection to the cluster.
+15	retry_join = ["172.28.128.3","172.28.128.4","172.28.128.5"]
+
+# connect: used to configure Consul Connect features. In this case is used to enable the Connect feature.
+16	connect {
+17	  enabled = true
+18	}
+```
 
 # Running Consul
 
