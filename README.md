@@ -57,6 +57,7 @@ Right now this repository have the labs listed below:
 
 * _[lab1_plain_text_config](./lab1_plain_text_config/README.md)_: where you'll configure _[Envoy](https://www.envoyproxy.io/)_ using a static configuration file.
 * _[lab2_integrating_consul_and_envoy](./lab2_integrating_consul_and_envoy/README.md)_: where you will run _[Consul](https://www.consul.io/)_ and _[Envoy](https://www.envoyproxy.io/)_ together.
+* _[lab3_consul_traffic_balancing_with_envoy/](./lab3_consul_traffic_balancing_with_envoy//README.md)_: where you will play with _[Consul](https://www.consul.io/)_ traffic management.
 
 # Set the lab
 
