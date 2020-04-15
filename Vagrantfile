@@ -31,19 +31,6 @@ rm consul_1.7.2_linux_amd64.zip
 sudo chown -R vagrant:vagrant /opt/consul
 SCRIPT
 
-# Generate Consul configuration files.
-$installConsul = <<SCRIPT
-sudo mkdir /opt/consul
-sudo chown vagrant:vagrant /opt/consul
-cd /opt/consul
-mkdir bin lib logs config
-cd bin
-curl -O https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip
-unzip consul_1.7.2_linux_amd64.zip
-rm consul_1.7.2_linux_amd64.zip
-sudo chown -R vagrant:vagrant /opt/consul
-SCRIPT
-
 # Install your preferred tools to debug and administer this systems.
 $installSupportTools = <<SCRIPT
 sudo yum install -y unzip net-tools strace
