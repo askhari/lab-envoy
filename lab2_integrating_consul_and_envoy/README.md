@@ -137,7 +137,7 @@ Now you may copy this configurations into the right folder which should be */opt
 
 ```bash
 # Copy the configurations files to Consul folder.
-[vagrant@localhost config]$ cp -r /home/vagrant/lab2_integrating_consul_and_envoy/consul/config/* /opt/consul/config/
+[vagrant@localhost config]$ cp -r /home/vagrant/configuration_for_labs/lab2_integrating_consul_and_envoy/consul/config/* /opt/consul/config/
 
 # Verify that the files have been copied.
 [vagrant@localhost ~]$ ls /opt/consul/config/
@@ -358,12 +358,12 @@ _[Envoy](https://www.envoyproxy.io/)_ is a quite complex tool. If you take a loo
 
 ## Generating Envoy configuration with Consul Connect
 
-In order con configure _[Envoy](https://www.envoyproxy.io/)_ we will use a [Consul Connect](https://www.consul.io/docs/connect/index.html) feature.
+In order to configure _[Envoy](https://www.envoyproxy.io/)_ we will use a [Consul Connect](https://www.consul.io/docs/connect/index.html) feature.
 
 Execute the command below to genetare _[Envoy](https://www.envoyproxy.io/)_ configuration for the _nginx_ service:
 
 ```bash
-[vagrant@localhost ~]$ /opt/consul/bin/consul connect envoy -bootstrap -sidecar-for "nginx" -http-addr=http://172.28.128.3:8500
+[vagrant@localhost ~]$ /opt/consul/bin/consul connect envoy -bootstrap -sidecar-for "nginx" -http-addr=http://172.28.128.3:8500 | tee -a /tmp/envoy_nginx_config.json
 {
   "admin": {
     "access_log_path": "/dev/null",
@@ -485,6 +485,7 @@ Execute the command below to genetare _[Envoy](https://www.envoyproxy.io/)_ conf
 Execute the command below to genetare _[Envoy](https://www.envoyproxy.io/)_ configuration for the _client_ service:
 
 ```bash
+# Please note that you should change the "port_value" of the admin endpoint to avoid overlapping with the first Envoy instance.
 [vagrant@localhost ~]$ /opt/consul/bin/consul connect envoy -bootstrap -sidecar-for "client" -http-addr=http://172.28.128.3:8500 | tee -a /tmp/envoy_client_config.json
 {
   "admin": {
@@ -762,13 +763,13 @@ First lets take a look to the ports used in this lab on. Node-3 is the one for t
 
 The last step of this lab about testing that we really configured the proxies properly.
 
-You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _9191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
+You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _19191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
 
 ```bash
 Last login: Sat Apr 11 11:25:27 2020 from 10.0.2.2
-[vagrant@localhost ~]$ curl localhost:9191
+[vagrant@localhost ~]$ curl localhost:19191
 Hello from node 3
-[vagrant@localhost ~]$ curl localhost:9191
+[vagrant@localhost ~]$ curl localhost:19191
 Hello from node 3
 ```
 
@@ -785,7 +786,7 @@ Take a look to this thread for a better undertanding on why is designed this way
 
 ## Running multiple Envoy instances
 
-In order to run multiple _Envoy_ instances you will need to use the *--bind-id* parameter.
+In order to run multiple _Envoy_ instances you will need to use the *--base-id* parameter.
 Also, if you are running multiple _Envoy_ instances, you'll need to change the _admin_ port.
 
 ```

@@ -28,11 +28,6 @@ Hello from node 5
 To run _[Envoy](https://www.envoyproxy.io/)_ as a proxy between all the running instances you may use the configuration file *envoy_config.yaml*. This file is located in the [~/home/vagrant/configuration_for_labs/lab1_plain_text_config/envoy_config.yaml](./lab1_plain_text_config/envoy_config.yaml).
 This file contains a basic configuration you will need to adjust for each node. You will only need to adjust it if you want to boot envoy in all nodes, otherwise you may leave this configuration file as it is if you run _[Envoy](https://www.envoyproxy.io/)_ only in _node-3_.
 
-If you want to run _[Envoy](https://www.envoyproxy.io/)_  in all nodes, then you may change the following values in the configuration file:
-
-* IP address of the node.
-* Name of the node.
-
 _[Envoy](https://www.envoyproxy.io/)_ uses two directives to wake up _listeners_ and connect to different _upstreams_. In the configuration file take a look to the following definitions:
 
 * _listeners_: here you will define which listeners you want _[Envoy](https://www.envoyproxy.io/)_ to open. In this example it will open port 10000 to listen to any request. This requests will be processed by the _filters_ defined in the _filter chain_. In this example they will proxy the traffic to a _cluster_ named *service_nginx*.
