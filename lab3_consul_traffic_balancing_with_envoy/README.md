@@ -19,7 +19,7 @@ This will allow you to implement _blue-green_ or _canary_ deployments easily.
 
 ## How consul manages traffic
 
-The best place to understand how _[Consul](https://www.consul.io/)_ manages documentation is [the official documentation](https://www.consul.io/docs/connect/l7-traffic-management.html).
+The best place to understand how _[Consul](https://www.consul.io/)_ manages configuration is [the official documentation](https://www.consul.io/docs/connect/l7-traffic-management.html).
 
 In short it uses some internal service configuration. This configuration is divided in layers:
 
@@ -144,24 +144,24 @@ First lets take a look to the ports used in this lab on. Node-3 is the one for t
 * _80:_ Used by _[Nginx](https://www.nginx.com/)_ service.
 * _8080:_ Used by _Client_ service. In fact we are not using this port at all.
 * _21000:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _client_ service.
-* _9191:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as an upstream from _client_ service to _nginx_ service.
+* _19191:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as an upstream from _client_ service to _nginx_ service.
 * _21001:_ Used by _nginx-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _nginx_ service.
 
 ## Sending requests
 
 The last step of this lab about testing that we really configured the proxies properly.
 
-You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _9191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
+You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _19191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
 
 ```bash
 Last login: Sat Apr 11 11:25:27 2020 from 10.0.2.2
-[vagrant@localhost ~]$ curl localhost:9191
+[vagrant@localhost ~]$ curl localhost:19191
 Hello from node 3
-[vagrant@localhost ~]$ curl localhost:9191
+[vagrant@localhost ~]$ curl localhost:19191
 Hello from node 3
 ```
 
-It's important to use the proxy port listening on port _9191_ because _[Consul](https://www.consul.io/)_ configures _[Envoy](https://www.envoyproxy.io/)_ to use mTLS between services. This means that you won't be able to make this _curl_ call directly to the _[Envoy](https://www.envoyproxy.io/)_ proxy port _21001_ opened by the _nginx-sidecar-proxy_.
+It's important to use the proxy port listening on port _19191_ because _[Consul](https://www.consul.io/)_ configures _[Envoy](https://www.envoyproxy.io/)_ to use mTLS between services. This means that you won't be able to make this _curl_ call directly to the _[Envoy](https://www.envoyproxy.io/)_ proxy port _21001_ opened by the _nginx-sidecar-proxy_.
 
 You will notice that most requests end up landing in node 5. You may play around with the weights defined in the *nginx_splitter.hcl* file and see what happens.
 
@@ -1294,16 +1294,16 @@ Below you have the complete _[Envoy](https://www.envoyproxy.io/)_ configuration 
      }
     },
     {
-     "name": "nginx:127.0.0.1:9191",
+     "name": "nginx:127.0.0.1:19191",
      "active_state": {
       "version_info": "00000001",
       "listener": {
        "@type": "type.googleapis.com/envoy.api.v2.Listener",
-       "name": "nginx:127.0.0.1:9191",
+       "name": "nginx:127.0.0.1:19191",
        "address": {
         "socket_address": {
          "address": "127.0.0.1",
-         "port_value": 9191
+         "port_value": 19191
         }
        },
        "filter_chains": [

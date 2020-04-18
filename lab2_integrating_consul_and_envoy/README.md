@@ -734,7 +734,7 @@ This would be the second instance of _[Envoy](https://www.envoyproxy.io/)_ runni
 [2020-04-11 11:27:31.207][4966][info][upstream] [external/envoy/source/server/lds_api.cc:74] lds: add/update listener 'public_listener:0.0.0.0:21000'
 [2020-04-11 11:27:31.207][4966][warning][misc] [external/envoy/source/common/protobuf/utility.cc:198] Using deprecated option 'envoy.api.v2.listener.Filter.config' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
 [2020-04-11 11:27:31.207][4966][warning][misc] [bazel-out/k8-opt/bin/external/envoy/source/extensions/common/_virtual_includes/utility_lib/extensions/common/utility.h:65] Using deprecated extension name 'envoy.tcp_proxy' for 'envoy.filters.network.tcp_proxy'. This name will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/intro/deprecated for details.
-[2020-04-11 11:27:31.208][4966][info][upstream] [external/envoy/source/server/lds_api.cc:74] lds: add/update listener 'nginx:127.0.0.1:9191'
+[2020-04-11 11:27:31.208][4966][info][upstream] [external/envoy/source/server/lds_api.cc:74] lds: add/update listener 'nginx:127.0.0.1:19191'
 [2020-04-11 11:27:31.208][4966][info][config] [external/envoy/source/server/listener_manager_impl.cc:700] all dependencies initialized. starting workers
 ```
 
@@ -756,7 +756,7 @@ First lets take a look to the ports used in this lab on. Node-3 is the one for t
 * _80:_ Used by _[Nginx](https://www.nginx.com/)_ service.
 * _8080:_ Used by _Client_ service. In fact we are not using this port at all.
 * _21000:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _client_ service.
-* _9191:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as an upstream from _client_ service to _nginx_ service.
+* _19191:_ Used by _client-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as an upstream from _client_ service to _nginx_ service.
 * _21001:_ Used by _nginx-sidecar-proxy_ to open a listener with _[Envoy](https://www.envoyproxy.io/)_ as a downstream/upstream port for the _nginx_ service.
 
 ## Sending requests
@@ -773,7 +773,7 @@ Hello from node 3
 Hello from node 3
 ```
 
-It's important to use the proxy port listening on port _9191_ because _[Consul](https://www.consul.io/)_ configures _[Envoy](https://www.envoyproxy.io/)_ to use mTLS between services. This means that you won't be able to make this _curl_ call directly to the _[Envoy](https://www.envoyproxy.io/)_ proxy port _21001_ opened by the _nginx-sidecar-proxy_.
+It's important to use the proxy port listening on port _19191_ because _[Consul](https://www.consul.io/)_ configures _[Envoy](https://www.envoyproxy.io/)_ to use mTLS between services. This means that you won't be able to make this _curl_ call directly to the _[Envoy](https://www.envoyproxy.io/)_ proxy port _21001_ opened by the _nginx-sidecar-proxy_.
 
 # Caveats
 
