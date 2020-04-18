@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.0.5] - 2020-04-18
+### Added
+- Lab3 files and configurations
+
+### Changed
+- Main README.md to add a _Thank you section_.
+
+### Fixed
+- Port numbers for _client_ service proxy.
+
 ## [0.0.4] - 2020-04-10
 ### Changed
 - README.md for lab introductions.

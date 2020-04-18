@@ -101,6 +101,6 @@ Last login: Thu Apr  9 19:05:29 2020 from 10.0.2.2
 consul
 ```
 
-# TODO
+# Acknowledgements, mentions and thanks
 
-* Prepare README.md's and detailed information for lab1.
+* [Gigigotrek](https://github.com/Gigigotrek) for all the feedback and help to make this lab useful.
