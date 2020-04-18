@@ -206,7 +206,12 @@ Service {
 Now lets reload consul in nodes 4 and 5
 
 ```bash
-[vagrant@localhost ~]$ /opt/consul/bin/consul reload -http-addr=172.28.128.7:8500
+# From node-4
+[vagrant@localhost ~]$ /opt/consul/bin/consul reload -http-addr=172.28.128.4:8500
+Configuration reload triggered
+
+# From node-5
+[vagrant@localhost ~]$ /opt/consul/bin/consul reload -http-addr=172.28.128.5:8500
 Configuration reload triggered
 ```
 
