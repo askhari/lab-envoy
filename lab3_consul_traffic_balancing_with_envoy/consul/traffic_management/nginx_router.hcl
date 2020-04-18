@@ -1,4 +1,3 @@
-[vagrant@localhost traffic]$ cat nginx_router.hcl 
 kind = "service-router"
 name = "nginx"
 routes = [

@@ -154,6 +154,67 @@ The last step of this lab about testing that we really configured the proxies pr
 You may login into _node-3_ and use curl to send HTTP request to the _nginx_ service. Use the _19191_ opened by the _client-sidecar-proxy_ to make the query and you'll see something like below.
 
 ```bash
+[vagrant@localhost traffic_management]$ curl localhost:19191
+no healthy upstream
+[vagrant@localhost traffic_management]$ curl localhost:19191
+no healthy upstream
+[vagrant@localhost traffic_management]$ curl localhost:19191
+```
+
+This error means that you are either landing on an unhealty enpoint or the _service-resolver_ isn't able to resolve a service using its filters.
+If you take a look to the [_/opt/consul/config/services/nginx.hcl_](../lab2_integrating_consul_and_envoy/config/consul/services/nginx.hcl) of each node, you'll see that all of them are configured with the same _tags_: "primary" and "v1".
+On the other hand, if you take a look to the [_service-resolver_ configuration](./consul/traffic_management/nginx_resolver.hcl), it tries to resolve some _nginx_ services using the following tags: "primary", "v1", "v2" and "secondary".
+This leads to the _no healthy upstream_ error because the _service-resolver_ is willing to send most of the traffic to the _secondary_ subset.
+
+### Fixing the errors
+
+Now let's change the [_nginx_ service configuration file](../lab2_integrating_consul_and_envoy/config/consul/services/nginx.hcl) of nodes 4 and 5 to allow the _service-resolver_ do its job properly.
+You'll need to set _nginx_ service tags to include a "v2" and "secondary" tags to match the _service-resolver_ filter rules. Below you have the example content.
+
+```bash
+# Changes for /opt/consul/config/services/nginx.hcl in node-4
+[vagrant@localhost ~]$ cat /opt/consul/config/services/nginx.hcl 
+Service {
+  Name = "nginx"
+  Tags = ["primary","v2"]
+  Port = 80
+  Meta {
+    nginx = "1.0"
+  }
+  connect {
+    sidecar_service {
+    }
+  }
+}
+
+# Changes for /opt/consul/config/services/nginx.hcl in node-5
+[vagrant@localhost ~]$ cat /opt/consul/config/services/nginx.hcl 
+Service {
+  Name = "nginx"
+  Tags = ["secondary","v1"]
+  Port = 80
+  Meta {
+    nginx = "1.0"
+  }
+  connect {
+    sidecar_service {
+    }
+  }
+}
+```
+
+Now lets reload consul in nodes 4 and 5
+
+```bash
+[vagrant@localhost ~]$ /opt/consul/bin/consul reload -http-addr=172.28.128.7:8500
+Configuration reload triggered
+```
+
+You may now refresh the _Consul UI_ and take a look to the services tags.
+
+## Testing again
+
+```bash
 Last login: Sat Apr 11 11:25:27 2020 from 10.0.2.2
 [vagrant@localhost ~]$ curl localhost:19191
 Hello from node 3
