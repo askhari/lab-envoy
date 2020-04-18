@@ -50,6 +50,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $installExtraTools
   config.vm.provision "file", source: "./lab1_plain_text_config", destination: "/home/vagrant/configuration_for_labs/"
   config.vm.provision "file", source: "./lab2_integrating_consul_and_envoy", destination: "/home/vagrant/configuration_for_labs/"
+  config.vm.provision "file", source: "./lab3_consul_traffic_balancing_with_envoy", destination: "/home/vagrant/configuration_for_labs/"
 
   # Generate 3 machines.
   (3..5).each do |i|
