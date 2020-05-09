@@ -248,6 +248,7 @@ Once _[Helm](https://helm.sh/)_ finishes its job, you should have the following 
  
 
 Here you may have a quick peek of the kubernetes objects created:
+
 ```
 (⎈ kind-consul-gateway:consul) ζ k get all                                                                                                                                                              [1da3620] 
 NAME                                                                  READY   STATUS    RESTARTS   AGE
@@ -607,8 +608,65 @@ service {
     2020-05-09T15:43:12.157Z [INFO]  agent: Started DNS server: address=127.0.0.1:8600 network=tcp
     2020-05-09T15:43:12.157Z [INFO]  agent: Started HTTP server: address=172.28.128.5:8500 network=tcp
 ==> Joining cluster...
+```
+
+# Updating the client service configuration
+
+In order to test if all these configurations work as expected, you'll need to change the _client_ service configuration and add a new upstream that goes to the _counter_ service.
+
+I made the changes in one of the _Consul servers_ (node-3) and register the service using the _Consul_ CLI.
+You may find the configuration in _[this file](./consul_gateway/client.hcl)_.
 
 ```
+# First deregister the current client service.
+[vagrant@localhost services]$ /opt/consul/bin/consul services deregister -http-addr=http://172.28.128.3:8500 netcat.hcl 
+Deregistered service: client
+
+# Now let's configure the upstream. It should be similar to the content below.
+[vagrant@localhost services]$ cat netcat.hcl 
+Service {
+  name = "client"
+  port = 8080
+  connect {
+    sidecar_service {
+      proxy {
+        upstreams = [{
+          destination_type = "service"
+          destination_name = "nginx"
+          local_bind_port = 9191
+        },
+        {
+          destination_type = "service"
+          destination_name = "counting"
+          datacenter = "area51playground"
+          local_bind_port = 9192
+          mesh_gateway {
+               mode = "local"
+          }
+        }]
+      }
+    }
+  }
+}
+
+# Now let's register the service.
+[vagrant@localhost services]$ /opt/consul/bin/consul services register -http-addr=http://172.28.128.3:8500 netcat.hcl 
+Registered service: client
+```
+
+You have configured the _client_ service with an _upstream_ on port 9192 that should communicate with the _counting_ service running in the Kubernetes cluster.
+
+# Testing the mesh gateway
+
+From the same node you have the _client_ service configured, you may curl to the configured port.
+
+```
+grant@localhost services]$ curl -q localhost:9192/
+{"count":23778,"hostname":"counting"}
+```
+
+If you see a JSON formatted response, congrats! Otherwise, try to investigate a little bit more your configurations in case there's something missing.
+
 
 
 # What's happening under the hood
